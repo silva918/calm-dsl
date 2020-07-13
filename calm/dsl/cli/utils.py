@@ -7,7 +7,7 @@ from click_didyoumean import DYMMixin
 from distutils.version import LooseVersion as LV
 
 from calm.dsl.tools import get_logging_handle
-from calm.dsl.store import Version
+from calm.dsl.store import Version, Cache
 
 LOG = get_logging_handle(__name__)
 BASE_FEATURE_VERSION = "2.9.7"
@@ -89,6 +89,7 @@ class FeatureFlagMixin:
         super().__init__(*args, **kwargs)
         self.feature_version_map = dict()
         self.experimental_cmd_map = dict()
+        self.direct_invoke_cmd_map = dict()
 
     def command(self, *args, **kwargs):
         """Behaves the same as `click.Group.command()` except added an
@@ -106,6 +107,10 @@ class FeatureFlagMixin:
         if args:
             self.experimental_cmd_map[args[0]] = is_experimental
 
+        invoke_direct = kwargs.pop("invoke_direct", False)
+        if args and isinstance(invoke_direct, bool):
+            self.direct_invoke_cmd_map[args[0]] = invoke_direct
+
         return super().command(*args, **kwargs)
 
     def invoke(self, ctx):
@@ -115,9 +120,8 @@ class FeatureFlagMixin:
 
         cmd_name = ctx.protected_args[0]
 
-        # Handle base case
-        # ToDO - fix this hack
-        if cmd_name == "dsl":
+        invoke_direct = self.direct_invoke_cmd_map.get(cmd_name, False)
+        if invoke_direct:
             return super().invoke(ctx)
 
         feature_min_version = self.feature_version_map.get(cmd_name, "")

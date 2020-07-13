@@ -16,7 +16,7 @@ from calm.dsl.tools import (
     simple_verbosity_option,
     show_trace_option,
 )
-from calm.dsl.config import get_config
+from calm.dsl.config import update_config_file_location
 from calm.dsl.store import Cache
 
 from .version_validator import validate_version
@@ -77,7 +77,7 @@ Commonly used commands:
         LOG.debug("Could not validate version")
         pass
     if config_file:
-        get_config(config_file=config_file)
+        update_config_file_location(config_file=config_file)
     if sync:
         Cache.sync()
 
@@ -133,7 +133,7 @@ def show(ctx):
     pass
 
 
-@show.command("commands")
+@show.command("commands", invoke_direct=True)
 @click.pass_context
 def show_all_commands(ctx):
 

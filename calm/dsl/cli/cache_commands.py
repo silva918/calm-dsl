@@ -24,7 +24,7 @@ def clear_cache():
     LOG.info(highlight_text("Cache cleared at {}".format(datetime.datetime.now())))
 
 
-@update.command("cache")
+@update.command("cache", invoke_direct=True)
 def update_cache():
     """Update the data for dynamic entities stored in the cache"""
 

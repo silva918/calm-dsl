@@ -101,7 +101,7 @@ def get_default_local_dir():
     return local_dir
 
 
-def update_config_file_location(config_file):
+def update_config_file_location(config_file, update_init=False):
     """
         updates the config file location (global _CONFIG_FILE object)
         If update_init is True, it will update the config file location at init file also
@@ -123,6 +123,8 @@ def update_config_file_location(config_file):
 
     # If file exists and a valid config file then update global _CONFIG_FILE object
     _CONFIG_FILE = config_file
+
+    # TODO check the use of update_init flag
 
 
 def get_config():
@@ -149,45 +151,6 @@ def get_config():
         )
 
     return config
-
-
-def _render_init_template(
-    config_file, db_file, local_dir, schema_file="init.ini.jinja2"
-):
-    """renders the init template"""
-
-    loader = PackageLoader(__name__, "")
-    env = Environment(loader=loader)
-    template = env.get_template(schema_file)
-    text = template.render(
-        config_file=config_file, db_file=db_file, local_dir=local_dir,
-    )
-    return text.strip() + os.linesep
-
-
-def _render_config_template(
-    ip,
-    port,
-    username,
-    password,
-    project_name,
-    log_level,
-    schema_file="config.ini.jinja2",
-):
-    """renders the config template"""
-
-    loader = PackageLoader(__name__, "")
-    env = Environment(loader=loader)
-    template = env.get_template(schema_file)
-    text = template.render(
-        ip=ip,
-        port=port,
-        username=username,
-        password=password,
-        project_name=project_name,
-        log_level=log_level,
-    )
-    return text.strip() + os.linesep
 
 
 def update_init_config(config_file, db_file, local_dir):
@@ -279,13 +242,3 @@ def set_config(
         project_name=project_name,
         log_level=log_level,
     )
-
-
-def print_config():
-    """prints the configuration"""
-
-    config_file = get_user_config_file()
-    LOG.debug("Fetching configuration from '{}'".format(config_file))
-    print("")
-    with open(config_file) as fd:
-        print(fd.read())
